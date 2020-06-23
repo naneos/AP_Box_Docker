@@ -19,25 +19,25 @@ def write_P2_data_to_influx(string_P2, timestamp):
                     "time": timestamp,
                     "fields": {
                         "seconds":          float(splitedValues[0]),
-                        "number":           int(splitedValues[1])i,
-                        "diameter":         int(splitedValues[2])i,
+                        "number":           int(splitedValues[1]),
+                        "diameter":         int(splitedValues[2]),
                         "LDSA":             float(splitedValues[3]),
                         "surface":          float(splitedValues[4]),
                         "mass":             float(splitedValues[5]),
                         "A1":               float(splitedValues[6]),
                         "A2":               float(splitedValues[7]),
                         "i_diff":           float(splitedValues[8]),
-                        "HV":               int(splitedValues[9])i,
+                        "HV":               int(splitedValues[9]),
                         "EM1":              float(splitedValues[10]),
                         "EM2":              float(splitedValues[11]),
-                        "DV":               int(splitedValues[12])i,
+                        "DV":               int(splitedValues[12]),
                         "temperature":      float(splitedValues[13]),
-                        "rel_humidity":     int(splitedValues[14])i,
+                        "rel_humidity":     int(splitedValues[14]),
                         "pressure":         float(splitedValues[15]),
                         "flow":             float(splitedValues[16]),
                         "U_battery":        float(splitedValues[17]),
                         "I_pump":           float(splitedValues[18]),
-                        "message_error":    int(splitedValues[19])i
+                        "message_error":    int(splitedValues[19])
                     }
                 }
             ]
