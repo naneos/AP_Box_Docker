@@ -8,8 +8,7 @@ import datetime
 from influxdb import InfluxDBClient
 dbname = 'naneos_db'
 import re
-def write_P2_data_to_influx(string_P2, timestamp):
-    splitedValues = re.split(r'\t[ ]*',string_P2)
+def write_P2_data_to_influx(P2_data, timestamp):
     datapoints = [
                 {
                     "measurement": 'p2_data',  #thats somethin like table
@@ -18,32 +17,60 @@ def write_P2_data_to_influx(string_P2, timestamp):
                     },
                     "time": timestamp,
                     "fields": {
-                        "seconds":          float(splitedValues[0]),
-                        "number":           int(splitedValues[1]),
-                        "diameter":         int(splitedValues[2]),
-                        "LDSA":             float(splitedValues[3]),
-                        "surface":          float(splitedValues[4]),
-                        "mass":             float(splitedValues[5]),
-                        "A1":               float(splitedValues[6]),
-                        "A2":               float(splitedValues[7]),
-                        "i_diff":           float(splitedValues[8]),
-                        "HV":               int(splitedValues[9]),
-                        "EM1":              float(splitedValues[10]),
-                        "EM2":              float(splitedValues[11]),
-                        "DV":               int(splitedValues[12]),
-                        "temperature":      float(splitedValues[13]),
-                        "rel_humidity":     int(splitedValues[14]),
-                        "pressure":         float(splitedValues[15]),
-                        "flow":             float(splitedValues[16]),
-                        "U_battery":        float(splitedValues[17]),
-                        "I_pump":           float(splitedValues[18]),
-                        "message_error":    int(splitedValues[19])
+                        "seconds":          P2_data[0],
+                        "number":           P2_data[1],
+                        "diameter":         P2_data[2],
+                        "LDSA":             P2_data[3],
+                        "surface":          P2_data[4],
+                        "mass":             P2_data[5],
+                        "A1":               P2_data[6],
+                        "A2":               P2_data[7],
+                        "i_diff":           P2_data[8],
+                        "HV":               P2_data[9],
+                        "EM1":              P2_data[10],
+                        "EM2":              P2_data[11],
+                        "DV":               P2_data[12],
+                        "temperature":      P2_data[13],
+                        "rel_humidity":     P2_data[14],
+                        "pressure":         P2_data[15],
+                        "flow":             P2_data[16],
+                        "U_battery":        P2_data[17],
+                        "I_pump":           P2_data[18],
+                        "message_error":    P2_data[19]
                     }
                 }
             ]
     message_result = client.write_points(datapoints)
     print(message_result)
 
+def P2_string2data(string_P2):
+    try:
+        splitedValues = re.split(r'\t[ ]*',string_P2)
+        val = []
+
+        val[0] = float(splitedValues[0])
+        val[1] = int(splitedValues[1])
+        val[2] = int(splitedValues[2])
+        val[3] = float(splitedValues[3])
+        val[4] = float(splitedValues[4])
+        val[5] = float(splitedValues[5])
+        val[6] = float(splitedValues[6])
+        val[7] = float(splitedValues[7])
+        val[8] = float(splitedValues[8])
+        val[9] = int(splitedValues[9])
+        val[10] = float(splitedValues[10])
+        val[11] = float(splitedValues[11])
+        val[12] = int(splitedValues[12])
+        val[13] = float(splitedValues[13])
+        val[14] = int(splitedValues[14])
+        val[15] = float(splitedValues[15])
+        val[16] = float(splitedValues[16])
+        val[17] = float(splitedValues[17])
+        val[18] = float(splitedValues[18])
+        val[19] = int(splitedValues[19])
+        return val
+    except:
+        print("ERROR: Serial data corrupted")
 
 serQueue = queue.Queue(100)
 
@@ -85,9 +112,10 @@ try:
     while True:
         line = serQueue.get(True)
         timestamp=datetime.datetime.utcnow().isoformat()
-        print(line)
-
-        write_P2_data_to_influx(line, timestamp)
+        
+        P2_data = P2_string2data(line)
+        write_P2_data_to_influx(P2_data, timestamp)
+        
         
 
        
