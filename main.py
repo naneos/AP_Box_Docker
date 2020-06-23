@@ -8,6 +8,11 @@ import datetime
 from influxdb import InfluxDBClient
 dbname = 'naneos_db'
 import re
+
+# Globals
+datapoints = []
+seconds_counter = 0
+
 def write_P2_data_to_influx(P2_data, timestamp):
     datapoints = [
                 {
@@ -42,6 +47,48 @@ def write_P2_data_to_influx(P2_data, timestamp):
             ]
     message_result = client.write_points(datapoints)
     print("InfluxDB Write success: ",message_result)
+
+def write_P2_data_to_influx_10s(P2_data, timestamp):
+    global datapoints
+    global seconds_counter
+    
+    new_datapoints = {
+                    "measurement": 'p2_data',  #thats something like a TABLE
+                    "tags": {
+                        "Device": "P2_piezo_HW3"
+                    },
+                    "time": timestamp,
+                    "fields": {
+                        "seconds":          P2_data[0],
+                        "number":           P2_data[1],
+                        "diameter":         P2_data[2],
+                        "LDSA":             P2_data[3],
+                        "surface":          P2_data[4],
+                        "mass":             P2_data[5],
+                        "A1":               P2_data[6],
+                        "A2":               P2_data[7],
+                        "i_diff":           P2_data[8],
+                        "HV":               P2_data[9],
+                        "EM1":              P2_data[10],
+                        "EM2":              P2_data[11],
+                        "DV":               P2_data[12],
+                        "temperature":      P2_data[13],
+                        "rel_humidity":     P2_data[14],
+                        "pressure":         P2_data[15],
+                        "flow":             P2_data[16],
+                        "U_battery":        P2_data[17],
+                        "I_pump":           P2_data[18],
+                        "message_error":    P2_data[19]
+                    }
+                }
+    datapoints.append(new_datapoints.copy())
+
+    seconds_counter += 1
+    if seconds_counter >= 30:
+        seconds_counter = 0
+        message_result = client.write_points(datapoints)
+        datapoints = []
+        print("InfluxDB Write success (30 points): ",message_result)
 
 def P2_string2data(string_P2):
     try:
@@ -109,8 +156,9 @@ try:
         
         P2_data = P2_string2data(line)
         if P2_data != False:
-            write_P2_data_to_influx(P2_data, timestamp)
-        
+            write_P2_data_to_influx_10s(P2_data, timestamp)
+            # write_P2_data_to_influx(P2_data, timestamp)
+            
         
 
        
