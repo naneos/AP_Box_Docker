@@ -6,59 +6,7 @@ import threading
 
 import datetime
 from influxdb import InfluxDBClient
-
 dbname = 'naneos_db'
-
-serQueue = queue.Queue(100)
-
-def serialReadPartector(s):
-    while True:
-        sourceLine = s.readline().decode(encoding="ASCII")
-        serialStream = sourceLine.replace('\n', '')
-        serQueue.put(serialStream)
-
-def openPort(port, baudrate):
-    ser = serial.Serial()
-    ser.port = (port) # on linux devices /dev/tty... + chmod 777
-    ser.baudrate = baudrate
-    while ser.isOpen() is False:
-        if ser.isOpen():
-            pass
-        else:
-            try:
-                ser.open()
-            except:
-                print("openPort: Eception!")
-                ser.close()
-    return ser
-
-## normal connection
-# client = InfluxDBClient('naneosbox', 6086, dbname)
-
-# drop + creation of new table
-client = InfluxDBClient('naneosbox', 6086)
-client.create_database(dbname)
-client.switch_database(dbname)
-
-serPartector = openPort('/dev/ttyACM0', 9600) # opens the device (P2) on the choosen Port
-threading.Thread(target=serialReadPartector, args=(serPartector,), ).start() # starts the Serial Thread
-line = serQueue.get(True) # throw first value away -> because it is sometimes incomplete
-print(line)
-
-try:
-    while True:
-        line = serQueue.get(True)
-
-        timestamp=datetime.datetime.utcnow().isoformat()
-        
-
-       
-except (KeyboardInterrupt, SystemExit):
-    print('Mesurement interrupted')
-
-serPartector.close()
-
-
 import re
 def write_P2_data_to_influx(string_P2, timestamp):
     splitedValues = re.split(r'\t[ ]*',string_P2)
@@ -95,3 +43,55 @@ def write_P2_data_to_influx(string_P2, timestamp):
             ]
     message_result = client.write_points(datapoints)
     print(message_result)
+
+
+serQueue = queue.Queue(100)
+
+def serialReadPartector(s):
+    while True:
+        sourceLine = s.readline().decode(encoding="ASCII")
+        serialStream = sourceLine.replace('\n', '')
+        serQueue.put(serialStream)
+
+def openPort(port, baudrate):
+    ser = serial.Serial()
+    ser.port = (port) # on linux devices /dev/tty... + chmod 777
+    ser.baudrate = baudrate
+    while ser.isOpen() is False:
+        if ser.isOpen():
+            pass
+        else:
+            try:
+                ser.open()
+            except:
+                print("openPort: Eception!")
+                ser.close()
+    return ser
+
+## normal connection
+# client = InfluxDBClient('naneosbox', 8088, dbname)
+
+# drop + creation of new table
+client = InfluxDBClient('naneosbox', 8086)
+client.create_database(dbname)
+client.switch_database(dbname)
+
+serPartector = openPort('/dev/ttyACM0', 9600) #  /dev/ttyACM0 opens the device (P2) on the choosen Port
+threading.Thread(target=serialReadPartector, args=(serPartector,), ).start() # starts the Serial Thread
+line = serQueue.get(True) # throw first value away -> because it is sometimes incomplete
+print(line)
+
+try:
+    while True:
+        line = serQueue.get(True)
+        timestamp=datetime.datetime.utcnow().isoformat()
+        print(line)
+
+        write_P2_data_to_influx(line, timestamp)
+        
+
+       
+except (KeyboardInterrupt, SystemExit):
+    print('Mesurement interrupted')
+
+serPartector.close()
