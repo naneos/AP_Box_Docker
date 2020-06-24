@@ -78,7 +78,8 @@ def write_P2_data_to_influx_10s(P2_data, timestamp):
                         "flow":             P2_data[16],
                         "U_battery":        P2_data[17],
                         "I_pump":           P2_data[18],
-                        "message_error":    P2_data[19]
+                        "message_error":    P2_data[19],
+                        "PWM_pump":         P2_data[20]
                     }
                 }
     datapoints.append(new_datapoints.copy())
@@ -106,7 +107,8 @@ def P2_string2data(string_P2):
                 int(splitedValues[12]),     float(splitedValues[13]),
                 int(splitedValues[14]),     float(splitedValues[15]),
                 float(splitedValues[16]),   float(splitedValues[17]),
-                float(splitedValues[18]),   int(splitedValues[19])]
+                float(splitedValues[18]),   int(splitedValues[19]),
+                float(splitedValues[20])]
         return val
     except:
         print("ERROR: Serial data corrupted")
@@ -159,9 +161,6 @@ try:
             write_P2_data_to_influx_10s(P2_data, timestamp)
             # write_P2_data_to_influx(P2_data, timestamp)
             
-        
-
-       
 except (KeyboardInterrupt, SystemExit):
     print('Mesurement interrupted')
 
