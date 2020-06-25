@@ -22,3 +22,8 @@ def readTemp():
     print("Thermocouple temperature: " + str(temp_thermocouple) + " °C")
 
     return(temp_thermocouple)
+
+
+if __name__ == "__main__":
+    readTemp()
+    pass
