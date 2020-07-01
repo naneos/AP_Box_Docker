@@ -1,8 +1,9 @@
-import spidev
+import spidev # only works on pi --> pip3 install spidev
 
 def readTemp():
     spi = spidev.SpiDev()
     spi.open(0,0) # opens CS0
+    spi.max_speed_hz = 3900000 #3.9MHz
 
     temp_bytes = spi.readbytes(4)
 
