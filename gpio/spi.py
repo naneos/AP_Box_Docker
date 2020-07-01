@@ -7,12 +7,12 @@ def readTemp():
 
     temp_bytes = spi.readbytes(4)
 
-    temp = int.from_bytes(temp_bytes, byteorder='little')
+    temp = int.from_bytes(temp_bytes, byteorder='big')
     error_open_connection = bool(temp & 0x01)
     error_short_circuit_GND = bool((temp >> 1) & 0x01)
     error_short_circuit_VCC = bool((temp >> 2) & 0x01)
-    temp_internal = (((temp >> 4) & 0x7FF) * 0.0625) * ((-1) * ((temp >> 15) & 0x01))
-    temp_thermocouple = (((temp >> 18) & 0x3FFF) * 0.25) * ((-1) * ((temp >> 31) & 0x01))
+    temp_internal = (((temp >> 3) & 0x7FF) * 0.0625) * ((-1) * ((temp >> 14) & 0x01))
+    temp_thermocouple = (((temp >> 17) & 0x3FFF) * 0.25) * ((-1) * ((temp >> 30) & 0x01))
 
     spi.close
 
